@@ -7,3 +7,4 @@ gtts
 moviepy
 matplotlib
 numpy
+opencv-python-headless
