@@ -1,0 +1,78 @@
+# 🧠 AI News Experience - .gitignore
+
+# ========================
+
+# 🔐 Environment Variables
+
+# ========================
+
+.env
+.env.*
+
+# ========================
+
+# 🐍 Python (Backend)
+
+# ========================
+
+**pycache**/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+
+venv/
+.env/
+.venv/
+
+# Logs
+
+*.log
+
+# ========================
+
+# 📦 Node (Frontend)
+
+# ========================
+
+node_modules/
+dist/
+build/
+
+# Vite
+
+.vite/
+
+# ========================
+
+# 🧠 OS Files
+
+# ========================
+
+.DS_Store
+Thumbs.db
+
+# ========================
+
+# 🧪 Testing / Coverage
+
+# ========================
+
+coverage/
+htmlcov/
+
+# ========================
+
+# 🧾 Misc
+
+# ========================
+
+*.sqlite3
+*.db
+
+# Video/audio/temp files (important for your project 🎥)
+
+*.mp4
+*.mp3
+*.png
