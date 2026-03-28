@@ -1,90 +1,86 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useMemo, useState } from "react";
+import { getVideoUrl, translateSummary } from "../services/api";
 
-export default function NewsCard({ article }) {
+export default function NewsCard({ article, index, persona }) {
   const [translated, setTranslated] = useState("");
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState("");
 
-  const translate = async () => {
-    const res = await axios.get(
-      `http://localhost:8000/news/translate?text=${article.summary}&lang=Tamil`
-    );
-    setTranslated(res.data.translated);
-  };
+  const storyNumber = useMemo(
+    () => String(index + 1).padStart(2, "0"),
+    [index]
+  );
 
-  const video = () => {
-    window.open(
-      `http://localhost:8000/news/video?text=${article.summary}`,
-      "_blank"
-    );
-  };
+  async function handleTranslate() {
+    if (translated) {
+      setTranslated("");
+      setTranslateError("");
+      return;
+    }
+
+    setIsTranslating(true);
+    setTranslateError("");
+
+    try {
+      const result = await translateSummary(article.summary, "Tamil");
+      setTranslated(result);
+    } catch (err) {
+      setTranslateError("Translation is unavailable right now.");
+    } finally {
+      setIsTranslating(false);
+    }
+  }
+
+  function handleVideo() {
+    window.open(getVideoUrl(article.summary), "_blank", "noopener,noreferrer");
+  }
 
   return (
-    <div
-      style={{
-        background: "linear-gradient(145deg, #1e293b, #0f172a)",
-        padding: "20px",
-        borderRadius: "16px",
-        marginBottom: "20px",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
-        transition: "all 0.3s ease"
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-5px)";
-        e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.6)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0px)";
-        e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.4)";
-      }}
-    >
-      <h3 style={{ marginBottom: "10px" }}>{article.title}</h3>
+    <article className="news-card">
+      <div className="news-card-top">
+        <span className="story-number">{storyNumber}</span>
+        <span className="story-tag">{persona.label} lens</span>
+      </div>
 
-      <p style={{ opacity: 0.9 }}>{article.summary}</p>
+      <h3>{article.title}</h3>
+      <p className="story-summary">{article.summary}</p>
 
-      {translated && (
-        <p style={{ color: "#38bdf8", marginTop: "10px" }}>
-          🌍 {translated}
-        </p>
-      )}
+      {translated ? (
+        <div className="translation-box">
+          <span className="translation-label">Tamil translation</span>
+          <p>{translated}</p>
+        </div>
+      ) : null}
 
-      <div style={{ marginTop: "15px" }}>
+      {translateError ? <p className="inline-error">{translateError}</p> : null}
+
+      <div className="card-actions">
         <button
-          onClick={translate}
-          style={{
-            padding: "8px 12px",
-            borderRadius: "8px",
-            border: "none",
-            background: "#38bdf8",
-            color: "black",
-            cursor: "pointer"
-          }}
+          type="button"
+          className="primary-button"
+          onClick={handleTranslate}
+          disabled={isTranslating}
         >
-          🌍 Translate
+          {isTranslating ? "Translating..." : translated ? "Hide translation" : "Translate summary"}
         </button>
 
         <button
-          onClick={video}
-          style={{
-            padding: "8px 12px",
-            borderRadius: "8px",
-            border: "none",
-            background: "#22c55e",
-            color: "black",
-            marginLeft: "10px",
-            cursor: "pointer"
-          }}
+          type="button"
+          className="secondary-button"
+          onClick={handleVideo}
         >
-          🎥 Video
+          Generate video
         </button>
       </div>
 
       <a
+        className="story-link"
         href={article.url}
         target="_blank"
-        style={{ display: "block", marginTop: "10px", color: "#94a3b8" }}
+        rel="noreferrer"
       >
-        Read full article →
+        Read full article
       </a>
-    </div>
+    </article>
   );
 }
